@@ -19,6 +19,9 @@ fi
 # Install zsh of update it
 sudo apt-get install zsh
 
+# Set zsh as default shell
+chsh -s $(which zsh)
+
 # Install curl to be able to install oh-my-zsh config
 sudo apt-get install curl
 
