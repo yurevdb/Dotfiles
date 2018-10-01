@@ -1,42 +1,34 @@
 "Plugins to install
 call plug#begin()
 
+" Syntax highlighting 
+Plug 'rust-lang/rust.vim'
+Plug 'racer-rust/vim-racer'
+
 "Theme and airline goodness
 Plug 'dracula/vim'
+Plug 'arcticicestudio/nord-vim'
 Plug 'itchyny/lightline.vim'
 
 "Editor stuff
 Plug 'editorconfig/editorconfig-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'tomtom/tcomment_vim'
+Plug 'tpope/vim-surround'
 
 "Useful extra's
 Plug 'scrooloose/nerdtree'
+Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'airblade/vim-gitgutter'
+Plug 'jreybert/vimagit'
 
 call plug#end()
 
 " Remapping Keys
+let mapleader=","
 inoremap jj <Esc>
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 nnoremap ; :
-function! Smart_TabComplete()
-  let line = getline('.')                         " current line
-
-  let substr = strpart(line, -1, col('.')+1)      " from the start of the current
-                                                  " line to one character right
-                                                  " of the cursor
-  let substr = matchstr(substr, "[^ \t]*$")       " word till cursor
-  if (strlen(substr)==0)                          " nothing to match on empty string
-    return "\<tab>"
-  endif
-  let has_period = match(substr, '\.') != -1      " position of period, if any
-  let has_slash = match(substr, '\/') != -1       " position of slash, if any
-  if (!has_slash)
-    return "\<C-X>\<C-O>"                         " existing text matching
-  elseif ( has_slash )
-    return "\<C-X>\<C-F>"                         " file matching
-  endif
-endfunction
-inoremap <tab> <c-r>=Smart_TabComplete()<CR>
 
 "Simple Settings
 set number relativenumber
@@ -47,16 +39,35 @@ syntax on
 set tabstop=4
 set shiftwidth=4
 set expandtab
+set foldmethod=syntax
 
 "Colorscheme
-color dracula
-set termguicolors
+let g:nord_comment_brightness = 15
+colorscheme nord
 
 "Lightline
-let g:lightline = { 'colorscheme': 'Dracula',}
+let g:lightline = { 'colorscheme': 'nord', }
 
 "Nerdtree
 map <C-o> :NERDTreeToggle<CR>
+autocmd StdinReadPre * let s:std_in=1
+autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
 " Deoplete
 let g:deoplete#enable_at_startup = 1
+let g:deoplete#enable_refresh_always = 1
+let g:deoplete#enable_ignore_case = 1
+let g:deoplete#enable_smart_case = 1
+let g:deoplete#enable_camel_case = 1
+let g:deoplete#file#enable_buffer_path = 1
+"call deoplete#custom#set('_', 'matchers', ['matcher_full_fuzzy'])
+set omnifunc=syntaxcomplete#Complete
+set completeopt=longest,menuone,preview,noinsert
+
+" Vim racer
+set hidden
+let g:racer_cmd = "~/.cargo/bin/racer"
+let g:racer_experimental_completer = 0
+
+" Vimagit
+map <Leader>m :Magit<CR>
