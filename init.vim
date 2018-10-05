@@ -13,6 +13,8 @@ Plug 'itchyny/lightline.vim'
 "Editor stuff
 Plug 'editorconfig/editorconfig-vim'
 Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/neosnippet.vim'
+Plug 'Shougo/neosnippet-snippets'
 Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-surround'
 
@@ -21,6 +23,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'airblade/vim-gitgutter'
 Plug 'jreybert/vimagit'
+Plug 'Yggdroot/indentLine'
 
 call plug#end()
 
@@ -29,24 +32,43 @@ let mapleader=","
 inoremap jj <Esc>
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 nnoremap ; :
+nnoremap j gj
+nnoremap k gk
+vnoremap j gj
+vnoremap k gk
+nnoremap <SPACE> zA
 
 "Simple Settings
 set number relativenumber
+set cursorline
 set ruler
 set noswapfile
-set nowrap
 syntax on
-set tabstop=4
-set shiftwidth=4
+
+" Formatoptions
+au FileType * set fo-=r fo-=o
+
+" Line wrapping
+set wrap
+set linebreak
+set nolist
+
+" Tabs
+set tabstop=2
+set softtabstop=2
+set shiftwidth=2
 set expandtab
-set foldmethod=syntax
+
+" Folding
+set foldmethod=indent
+set foldlevel=0
 
 "Colorscheme
-let g:nord_comment_brightness = 15
+let g:nord_comment_brightness = 20
 colorscheme nord
 
 "Lightline
-let g:lightline = { 'colorscheme': 'nord', }
+let g:lightline = { 'colorscheme': 'nord' }
 
 "Nerdtree
 map <C-o> :NERDTreeToggle<CR>
@@ -71,3 +93,11 @@ let g:racer_experimental_completer = 0
 
 " Vimagit
 map <Leader>m :Magit<CR>
+
+" Snippets
+imap <C-k> <Plug>(neosnippet_expand_or_jump)
+smap <C-k> <Plug>(neosnippet_expand_or_jump)
+xmap <C-k> <Plug>(neosnippet_expand_target)
+
+imap <expr><TAB> pumvisible() ? "\<C-n>" : neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
