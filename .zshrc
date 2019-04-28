@@ -99,3 +99,4 @@ unsetopt BEEP
 # Example aliases
 alias rl="source ~/.zshrc"
 alias vimrc="nvim ~/.config/nvim/init.vim"
+alias v="nvim"
