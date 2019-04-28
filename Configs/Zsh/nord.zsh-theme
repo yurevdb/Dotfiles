@@ -64,9 +64,9 @@ prompt_segment() {
   [[ -n $1 ]] && bg="%K{$1}" || bg="%k"
   [[ -n $2 ]] && fg="%F{$2}" || fg="%f"
   if [[ $CURRENT_BG != 'NONE' && $1 != $CURRENT_BG ]]; then
-    echo -n " %{$bg%F{$CURRENT_BG}%}%{$fg%} "
+    echo -n "%{$bg%F{$CURRENT_BG}%}%{$fg%}"
   else
-    echo -n "%{$bg%}%{$fg%} "
+    echo -n "%{$bg%}%{$fg%}"
   fi
   CURRENT_BG=$1
   [[ -n $3 ]] && echo -n $3
@@ -75,7 +75,7 @@ prompt_segment() {
 # End the prompt, closing any open segments
 prompt_end() {
   if [[ -n $CURRENT_BG ]]; then
-    echo -n " %{%k%F{$CURRENT_BG}%}"
+    echo -n "%{%k%F{$CURRENT_BG}%}"
   else
     echo -n "%{%k%}"
   fi
@@ -104,13 +104,14 @@ prompt_git() {
   local ref dirty mode repo_path
 
   if $(git rev-parse --is-inside-work-tree >/dev/null 2>&1); then
+    prompt_segment $CURRENT_BG red '['
     repo_path=$(git rev-parse --git-dir 2>/dev/null)
     dirty=$(parse_git_dirty)
     ref=$(git symbolic-ref HEAD 2> /dev/null) || ref="➦ $(git rev-parse --short HEAD 2> /dev/null)"
     if [[ -n $dirty ]]; then
-      prompt_segment yellow black
+      prompt_segment $CURRENT_BG yellow
     else
-      prompt_segment green $CURRENT_FG
+      prompt_segment $CURRENT_BG green
     fi
 
     if [[ -e "${repo_path}/BISECT_LOG" ]]; then
@@ -133,6 +134,8 @@ prompt_git() {
     zstyle ':vcs_info:*' actionformats ' %u%c'
     vcs_info
     echo -n "${ref/refs\/heads\//$PL_BRANCH_CHAR }${vcs_info_msg_0_%% }${mode}"
+
+    prompt_segment $CURRENT_BG red '] '
   fi
 }
 
@@ -194,9 +197,15 @@ prompt_hg() {
   fi
 }
 
+# User 
+prompt_user() {
+  prompt_segment $CURRENT_BG blue '%n'
+  prompt_segment $CURRENT_BG red '$'
+}
+
 # Dir: current working directory
 prompt_dir() {
-  prompt_segment blue $CURRENT_FG '%~'
+  prompt_segment $CURRENT_BG blue ' %~ '
 }
 
 # Virtualenv: current working virtualenv
@@ -214,11 +223,11 @@ prompt_virtualenv() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘"
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘ "
   [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙ "
 
-  [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
+  [[ -n "$symbols" ]] && prompt_segment $CURRENT_BG default "$symbols"
 }
 
 ## Main prompt
@@ -226,6 +235,7 @@ build_prompt() {
   RETVAL=$?
   prompt_status
   prompt_virtualenv
+  prompt_user
   prompt_dir
   prompt_git
   prompt_bzr
@@ -233,4 +243,4 @@ build_prompt() {
   prompt_end
 }
 
-PROMPT='%{%f%b%k%}$(build_prompt) '
+PROMPT='%{%f%b%k%}$(build_prompt)'
