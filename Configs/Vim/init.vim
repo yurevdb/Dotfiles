@@ -52,12 +52,24 @@ map <C-G> :Goyo<CR>
 set hidden
 let g:racer_cmd = "/home/yure/.cargo/bin/racer"
 let g:racer_experimental_completer = 1
+let g:completor_auto_trigger = 0
 
 " Completor
+let g:completor_racer_binary = "/home/yure/.cargo/bin/racer"
+function! Tab_Or_Complete() abort
+  if pumvisible()
+    return "\<C-N>"
+  elseif col('.')>1 && strpart( getline('.'), col('.')-2, 3 ) =~ '^\w'
+    return "\<C-R>=completor#do('complete')\<CR>"
+  else
+    return "\<Tab>"
+  endif
+endfunction
+
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<cr>"
-let g:completor_racer_binary = "/home/yure/.cargo/bin/racer"
+inoremap <expr> <Tab> Tab_Or_Complete()
+
 
 " Functions
 if ( $TERM == "xterm-256color" || $TERM == "screen-256color" )
