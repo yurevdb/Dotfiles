@@ -100,3 +100,4 @@ unsetopt BEEP
 alias rl="source ~/.zshrc"
 alias vimrc="nvim ~/.config/nvim/init.vim"
 alias v="nvim"
+alias rs="/home/yure/.scripts/run_script.sh"
