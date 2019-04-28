@@ -1,7 +1,7 @@
 if [[ $TMUX = "" ]]; then
 	#try to reattach sessions
-	tmux ls | grep -vq attached && TMUXARG="attach-session -d"
-	exec eval "tmux -2 $TMUXARG"
+  tmux ls | grep -vq attached && TMUXARG="attach-session -d"
+	exec eval "tmux -2 -u $TMUXARG"
 fi
 
 # Path to your oh-my-zsh installation.
