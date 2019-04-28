@@ -1,103 +1,91 @@
-"Plugins to install
+" Plugins
 call plug#begin()
 
-" Syntax highlighting 
-Plug 'rust-lang/rust.vim'
-Plug 'racer-rust/vim-racer'
-
-"Theme and airline goodness
-Plug 'dracula/vim'
 Plug 'arcticicestudio/nord-vim'
-Plug 'itchyny/lightline.vim'
-
-"Editor stuff
 Plug 'editorconfig/editorconfig-vim'
-Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-Plug 'Shougo/neosnippet.vim'
-Plug 'Shougo/neosnippet-snippets'
-Plug 'tomtom/tcomment_vim'
-Plug 'tpope/vim-surround'
-
-"Useful extra's
 Plug 'scrooloose/nerdtree'
-Plug 'Xuyuanp/nerdtree-git-plugin'
-Plug 'airblade/vim-gitgutter'
-Plug 'jreybert/vimagit'
-Plug 'Yggdroot/indentLine'
+Plug 'itchyny/lightline.vim'
+Plug 'junegunn/goyo.vim'
+
+" Programming
+Plug 'maralla/completor.vim'
+Plug 'racer-rust/vim-racer'
 
 call plug#end()
 
-" Remapping Keys
-let mapleader=","
+" Visuals
+colorscheme nord
+let g:lightline = { 'colorscheme': 'nord' }
+set cursorline
+set relativenumber
+
+" General Settings
+set foldmethod=indent
+set foldlevel=10
+set list lcs=trail:·,tab:»·
+au FileType * set fo-=r fo-=o
+set sts=2
+set ts=2
+set sw=2
+set et
+
+" Keymappings
+let mapleader=" "
+
 inoremap jj <Esc>
-inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
+
 nnoremap ; :
+nnoremap <Leader><Leader> za
 nnoremap j gj
 nnoremap k gk
-vnoremap j gj
-vnoremap k gk
-nnoremap <SPACE> zA
+nnoremap <C-h> <C-w>h
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-l> <C-w>l
 
-"Simple Settings
-set number relativenumber
-set cursorline
-set ruler
-set noswapfile
-syntax on
+map <C-2> <Nop>
 
-" Formatoptions
-au FileType * set fo-=r fo-=o
+map <C-n> :NERDTreeToggle<CR>
+map <C-G> :Goyo<CR>
 
-" Line wrapping
-set wrap
-set linebreak
-set nolist
+" Programming Settings
+set hidden
+let g:racer_cmd = "/home/yure/.cargo/bin/racer"
+let g:racer_experimental_completer = 1
 
-" Tabs
-set tabstop=2
-set softtabstop=2
-set shiftwidth=2
-set expandtab
+" Completor
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<cr>"
+let g:completor_racer_binary = "/home/yure/.cargo/bin/racer"
 
-" Folding
-set foldmethod=indent
-set foldlevel=0
-
-"Colorscheme
-let g:nord_comment_brightness = 20
-colorscheme nord
-
-"Lightline
-let g:lightline = { 'colorscheme': 'nord' }
-
-"Nerdtree
-map <C-o> :NERDTreeToggle<CR>
+" Functions
+if ( $TERM == "xterm-256color" || $TERM == "screen-256color" )
+	set t_Co=256
+	
+	" Enable powerline too
+	set rtp+=/usr/share/powerline/bindings/vim/
+endif
 autocmd StdinReadPre * let s:std_in=1
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
 
-" Deoplete
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#enable_refresh_always = 1
-let g:deoplete#enable_ignore_case = 1
-let g:deoplete#enable_smart_case = 1
-let g:deoplete#enable_camel_case = 1
-let g:deoplete#file#enable_buffer_path = 1
-"call deoplete#custom#set('_', 'matchers', ['matcher_full_fuzzy'])
-set omnifunc=syntaxcomplete#Complete
-set completeopt=longest,menuone,preview,noinsert
+" Goyo
+function! s:goyo_enter()
+	let b:quitting = 0
+	let b:quitting_bang = 0
+	autocmd QuitPre <buffer> let b:quitting = 1
+	cabbrev <buffer> q! let b:quitting_bang = 1 <bar> q!
+endfunction
 
-" Vim racer
-set hidden
-let g:racer_cmd = "~/.cargo/bin/racer"
-let g:racer_experimental_completer = 0
-
-" Vimagit
-map <Leader>m :Magit<CR>
-
-" Snippets
-imap <C-k> <Plug>(neosnippet_expand_or_jump)
-smap <C-k> <Plug>(neosnippet_expand_or_jump)
-xmap <C-k> <Plug>(neosnippet_expand_target)
-
-imap <expr><TAB> pumvisible() ? "\<C-n>" : neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
-smap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<TAB>"
+function! s:goyo_leave()
+	" Quit Vim if this is the only remaining buffer
+	if b:quitting && len(filter(range(1, bufnr('$')), 'buflisted(v:val)')) == 1
+		if b:quitting_bang
+			qa!
+		else
+			qa
+		endif
+	endif
+endfunction
+autocmd! User GoyoEnter call <SID>goyo_enter()
+autocmd! User GoyoLeave call <SID>goyo_leave()
