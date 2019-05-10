@@ -200,7 +200,7 @@ prompt_hg() {
 # User 
 prompt_user() {
   prompt_segment $CURRENT_BG blue '%n'
-  prompt_segment $CURRENT_BG red '$'
+  prompt_segment $CURRENT_BG red ' §'
 }
 
 # Dir: current working directory

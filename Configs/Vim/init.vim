@@ -5,29 +5,42 @@ Plug 'arcticicestudio/nord-vim'
 Plug 'editorconfig/editorconfig-vim'
 Plug 'scrooloose/nerdtree'
 Plug 'itchyny/lightline.vim'
+Plug 'daviesjamie/vim-base16-lightline'
 Plug 'junegunn/goyo.vim'
+Plug 'chriskempson/base16-vim'
 
 " Programming
-Plug 'maralla/completor.vim'
+Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 Plug 'racer-rust/vim-racer'
+Plug 'sebastianmarkow/deoplete-rust'
+Plug 'HerringtonDarkholme/yats.vim'
+Plug 'mhartington/nvim-typescript', { 'do': './install.sh'}
+
+" Javascript/Typescript
+Plug 'pangloss/vim-javascript'
+Plug 'mxw/vim-jsx'
+Plug 'leafgarland/typescript-vim'
+Plug 'peitalin/vim-jsx-typescript'
 
 call plug#end()
 
 " Visuals
+set termguicolors
 colorscheme nord
-let g:lightline = { 'colorscheme': 'nord' }
+let g:lightline = { 'colorscheme': 'base16' }
 set cursorline
-set relativenumber
+set number relativenumber
 
 " General Settings
+set noswapfile
 set foldmethod=indent
-set foldlevel=10
+set foldlevel=1
 set list lcs=trail:·,tab:»·
-au FileType * set fo-=r fo-=o
 set sts=2
 set ts=2
 set sw=2
 set et
+au FileType * set fo-=r fo-=o
 
 " Keymappings
 let mapleader=" "
@@ -50,36 +63,28 @@ map <C-G> :Goyo<CR>
 
 " Programming Settings
 set hidden
-let g:racer_cmd = "/home/yure/.cargo/bin/racer"
-let g:racer_experimental_completer = 1
-let g:completor_auto_trigger = 0
+let g:deoplete#enable_at_startup = 1
+let g:deoplete#sourcers#rust#racer_binary='/home/yure/.cargo/bin/racer'
+let g:deoplete#source#rust#rust_source_path='/home/yure/.rustlang/src'
 
 " Completor
 let g:completor_racer_binary = "/home/yure/.cargo/bin/racer"
-function! Tab_Or_Complete() abort
-  if pumvisible()
-    return "\<C-N>"
-  elseif col('.')>1 && strpart( getline('.'), col('.')-2, 3 ) =~ '^\w'
-    return "\<C-R>=completor#do('complete')\<CR>"
-  else
-    return "\<Tab>"
-  endif
-endfunction
-
 inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
 inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-inoremap <expr> <Tab> Tab_Or_Complete()
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<CR>"
 
 
 " Functions
 if ( $TERM == "xterm-256color" || $TERM == "screen-256color" )
 	set t_Co=256
-	
 	" Enable powerline too
 	set rtp+=/usr/share/powerline/bindings/vim/
 endif
 autocmd StdinReadPre * let s:std_in=1
+" If vim enters into an empty buffer, open with Nerdtree opened
 autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+" If Nerdtree is the only buffer left, close it automatically
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 " Goyo
 function! s:goyo_enter()
@@ -101,3 +106,9 @@ function! s:goyo_leave()
 endfunction
 autocmd! User GoyoEnter call <SID>goyo_enter()
 autocmd! User GoyoLeave call <SID>goyo_leave()
+
+" Setup base16 config
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
