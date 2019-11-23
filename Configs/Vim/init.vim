@@ -34,13 +34,16 @@ set number relativenumber
 " General Settings
 set noswapfile
 set foldmethod=indent
-set foldlevel=1
+set foldlevel=99
 set list lcs=trail:·,tab:»·
 set sts=2
 set ts=2
 set sw=2
 set et
 au FileType * set fo-=r fo-=o
+
+" Lua File options
+autocmd Syntax lua setlocal foldlevel=0
 
 " Keymappings
 let mapleader=" "
